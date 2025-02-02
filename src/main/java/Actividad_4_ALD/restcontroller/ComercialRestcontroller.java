@@ -2,6 +2,7 @@ package Actividad_4_ALD.restcontroller;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import Actividad_4_ALD.modelo.dto.PedidoDto;
 import Actividad_4_ALD.modelo.entities.Comercial;
 import Actividad_4_ALD.modelo.services.IComercialService;
 
@@ -44,10 +46,39 @@ public class ComercialRestcontroller {
         }
     }
 
-    // @GetMapping("/bycliente/{idCliente}")
-    // @GetMapping("/sinpedidos")
-    // @GetMapping("/pedidos/{idComercial}")
-    // @GetMapping("/totalpedidos")
+    @GetMapping("/bycliente/{idCliente}")
+
+    public ResponseEntity<?> listarComercialesPorCliente(@PathVariable Integer idCliente) {
+        List<Comercial> comerciales = comercialService.comercialesByCliente(idCliente);
+        if (comerciales.isEmpty()) {
+            return ResponseEntity.status(404)
+                    .body(Collections.singletonMap("error", "No se encontraron comerciales para el cliente con id " + idCliente));
+        }
+        return ResponseEntity.status(200).body(comerciales);
+    }
+
+    @GetMapping("/sinpedidos")
+    public ResponseEntity<?> listarComercialesSinPedidos() {
+        List<Comercial> comercialesSinPedidos = comercialService.comercialesSinPedidos();
+        return ResponseEntity.status(200).body(comercialesSinPedidos);
+    }
+
+    @GetMapping("/pedidos/{idComercial}")
+    public ResponseEntity<?> listarPedidosPorComercial(@PathVariable Integer idComercial) {
+        List<PedidoDto> pedidos = comercialService.pedidosByComercial(idComercial);
+        if (pedidos.isEmpty()) {
+            return ResponseEntity.status(404)
+                    .body(Collections.singletonMap("error",
+                            "No se encontraron pedidos para el comercial con id " + idComercial));
+        }
+        return ResponseEntity.status(200).body(pedidos);
+    }
+
+    @GetMapping("/totalpedidos")
+    public ResponseEntity<?> obtenerTotalFacturadoPorComercial() {
+        Map<String, Double> totalFacturado = comercialService.totalFacturadoPorComercial();
+        return ResponseEntity.status(200).body(totalFacturado);
+    }
 
     @PostMapping("/alta")
     public ResponseEntity<?> crearComercial(@RequestBody Comercial comercial) {

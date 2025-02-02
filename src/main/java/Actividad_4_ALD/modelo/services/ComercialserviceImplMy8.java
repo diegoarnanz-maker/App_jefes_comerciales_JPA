@@ -3,10 +3,12 @@ package Actividad_4_ALD.modelo.services;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import Actividad_4_ALD.modelo.dto.PedidoDto;
 import Actividad_4_ALD.modelo.entities.Comercial;
 import Actividad_4_ALD.modelo.entities.Pedido;
 import Actividad_4_ALD.repository.IComercialRepository;
@@ -106,23 +108,32 @@ public class ComercialserviceImplMy8 implements IComercialService {
         }
     }
 
-    // Revisar este método por si al hacerlo por jpql consume demasiados recursos
     @Override
-    public List<Pedido> pedidosByComercial(int idComercial) {
-        try {
-            if (idComercial == 0) {
-                throw new IllegalArgumentException("El id del comercial no puede ser 0");
-            }
-            return comercialRepository.pedidosByComercial(idComercial);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error al obtener la lista de pedidos por comercial", e);
+    public List<PedidoDto> pedidosByComercial(int idComercial) {
+        if (idComercial == 0) {
+            throw new IllegalArgumentException("El id del comercial no puede ser 0");
         }
+
+        List<Pedido> pedidos = comercialRepository.pedidosByComercial(idComercial);
+
+        return pedidos.stream()
+                .map(p -> new PedidoDto(
+                        p.getImporte(),
+                        p.getFecha(),
+                        p.getCliente().getIdCliente(),
+                        p.getComercial().getIdComercial()))
+                .collect(Collectors.toList());
     }
 
     @Override
     public Map<String, Double> totalFacturadoPorComercial() {
-        return null;
+        List<Pedido> pedidos = comercialRepository.obtenerTodosLosPedidos();
+
+        return pedidos.stream()
+                .collect(Collectors.groupingBy(
+                        p -> p.getComercial().getNombre() + " " + p.getComercial().getApellido1() +
+                                (p.getComercial().getApellido2() != null ? " " + p.getComercial().getApellido2() : ""),
+                        Collectors.summingDouble(Pedido::getImporte)));
     }
 
 }

@@ -27,5 +27,12 @@ public interface IComercialRepository extends JpaRepository<Comercial, Integer> 
 
     // Obtener la suma de los importes de los pedidos gestionados por cada
     // comercial.
+    @Query("SELECT CONCAT(p.comercial.nombre, ' ', p.comercial.apellido1, ' ', COALESCE(p.comercial.apellido2, '')), SUM(p.importe) "
+            +
+            "FROM Pedido p GROUP BY p.comercial.idComercial, p.comercial.nombre, p.comercial.apellido1, p.comercial.apellido2")
+    List<Object[]> totalFacturadoPorComercial();
+
+    @Query("SELECT p FROM Pedido p")
+    List<Pedido> obtenerTodosLosPedidos();
 
 }
