@@ -29,18 +29,13 @@ public class ComercialserviceImplMy8 implements IComercialService {
 
     @Override
     public Optional<Comercial> create(Comercial entity) {
-        try {
-            if (entity == null) {
-                throw new IllegalArgumentException("El comercial no puede ser nulo");
-            }
-            if (entity.getIdComercial() != null && comercialRepository.existsById(entity.getIdComercial())) {
-                throw new IllegalArgumentException("El id del comercial ya existe");
-            }
-            return Optional.of(comercialRepository.save(entity));
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new RuntimeException("Error al guardar el comercial", e);
+        if (entity == null) {
+            throw new IllegalArgumentException("El comercial no puede ser nulo"); // 400
         }
+        if (entity.getIdComercial() != null && comercialRepository.existsById(entity.getIdComercial())) {
+            throw new IllegalStateException("El comercial con ID " + entity.getIdComercial() + " ya existe"); // 409
+        }
+        return Optional.of(comercialRepository.save(entity));
     }
 
     @Override
@@ -111,7 +106,7 @@ public class ComercialserviceImplMy8 implements IComercialService {
         }
     }
 
-    //Revisar este método por si al hacerlo por jpql consume demasiados recursos
+    // Revisar este método por si al hacerlo por jpql consume demasiados recursos
     @Override
     public List<Pedido> pedidosByComercial(int idComercial) {
         try {
