@@ -12,6 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class PedidoDto {
+    private Integer idPedido;
     private Double importe;
     private LocalDate fecha;
     private Integer idCliente;

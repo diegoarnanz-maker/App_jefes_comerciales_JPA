@@ -118,6 +118,7 @@ public class ComercialserviceImplMy8 implements IComercialService {
 
         return pedidos.stream()
                 .map(p -> new PedidoDto(
+                        p.getIdPedido(),
                         p.getImporte(),
                         p.getFecha(),
                         p.getCliente().getIdCliente(),
